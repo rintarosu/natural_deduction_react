@@ -1,12 +1,26 @@
 import express from 'express';
+import cors from 'cors'; // corsをインポート
 // 🌟 engine.ts と types.ts をインポート
 import { applyRule } from './logics/engine.js'; 
 import { tokenize, parse } from './logics/parser.js'; 
 import type { ProofState, RuleName ,Formula} from './logics/types.js'; 
 
+
+
 // サーバーを起動するポート番号
 const PORT = 3000;
 const app = express();
+
+const allowedOrigins = [
+  'http://localhost:5173', 
+  // ↓これを追加してください（末尾のスラッシュは無しで！）
+  'https://natural-deduction-react.vercel.app'
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true // 必要に応じて
+}));
 
 // JSON形式のリクエストボディを解析するための設定
 app.use(express.json());
