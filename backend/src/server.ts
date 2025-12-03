@@ -11,17 +11,34 @@ import type { ProofState, RuleName ,Formula} from './logics/types.js';
 const PORT = 3000;
 const app = express();
 
+// 固定で許可したいURL（ローカル開発用など）
 const allowedOrigins = [
-  'http://localhost:5173', 
-  // ↓これを追加してください（末尾のスラッシュは無しで！）
-  'https://natural-deduction-react.vercel.app'
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://natural-deduction-react.vercel.app' // 本番URL
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true // 必要に応じて
-}));
+  origin: function (origin, callback) {
+    // 1. originがない場合（サーバー同士の通信やPostmanなど）は許可
+    if (!origin) return callback(null, true);
 
+    // 2. 固定リストに含まれているかチェック
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+
+    // 3. ★ここが重要★ VercelのプレビューURL（.vercel.appで終わるもの）を動的に許可
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+
+    // それ以外はブロック
+    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    return callback(new Error(msg), false);
+  },
+  credentials: true
+}));
 // JSON形式のリクエストボディを解析するための設定
 app.use(express.json());
 
