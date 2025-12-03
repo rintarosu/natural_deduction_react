@@ -5,7 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsx src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc",
     "test:parser": "tsx src/logics/test.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
