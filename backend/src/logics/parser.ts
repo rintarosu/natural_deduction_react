@@ -1,4 +1,4 @@
-import type { Formula, Token, TokenType, Connective  } from './types.js';
+import type { Formula, Token, Connective  } from './types.js';
 
 /**
  * 論理式の文字列を受け取り、トークンの配列に変換する字句解析器
