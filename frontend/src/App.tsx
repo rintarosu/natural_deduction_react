@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 // 🌟 初期証明状態の定義 (リセット用)
 const INITIAL_PROOF_STATE = {
     // 目標は初期段階ではnull
@@ -114,7 +116,7 @@ function App() {
         setParseError('');
         if (!inputFormula) { setParseError('論理式を入力してください。'); return; }
         try {
-            const response = await fetch('http://localhost:3000/api/parse', {
+            const response = await fetch(`${API_BASE_URL}/api/parse`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ formulaString: inputFormula }),
             });
@@ -131,7 +133,7 @@ function App() {
         if (!addQInput) { setAddQParseError('追加したい論理式Qを入力してください。'); return; }
         
         try {
-            const response = await fetch('http://localhost:3000/api/parse', {
+            const response = await fetch(`${API_BASE_URL}/api/parse`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ formulaString: addQInput }),
             });
@@ -168,7 +170,7 @@ function App() {
         if (!goalInput) { setGoalParseError('目標を入力してください。'); return; }
         
         try {
-            const response = await fetch('http://localhost:3000/api/parse', {
+            const response = await fetch(`${API_BASE_URL}/api/parse`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ formulaString: goalInput }),
             });
@@ -191,7 +193,7 @@ function App() {
     const callApplyRuleAPI = async (ruleName: string, stepIds: number[], newFormulaAst?: any) => {
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:3000/api/apply-rule', {
+            const response = await fetch(`${API_BASE_URL}/api/apply-rule`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ state: proofState, rule: ruleName, selectedStepIds: stepIds, newFormulaAst: newFormulaAst }),
             });
