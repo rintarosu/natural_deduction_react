@@ -44,13 +44,13 @@ app.use(express.json());
 
 // CORS（クロスオリジンリソース共有）設定
 // 異なるポート（フロントエンド: 5173, バックエンド: 3000）間での通信を許可
-app.use((req, res, next) => {
+//app.use((req, res, next) => {
   // 開発中のフロントエンドのURLを指定
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); 
-  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+//  res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); 
+//  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+//  res.header('Access-Control-Allow-Headers', 'Content-Type');
+//  next();
+//});
 
 // 動作確認用のルート（APIエンドポイント）
 app.get('/api/health', (req, res) => {
