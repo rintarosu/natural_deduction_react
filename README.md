@@ -41,7 +41,6 @@
 
 ### 開発ツール
 - Git / GitHub
-- ESLint
 - npm
 
 ---
@@ -223,3 +222,4 @@ MIT
 ## 作者
 
 [@rintarosu](https://github.com/rintarosu)
+
