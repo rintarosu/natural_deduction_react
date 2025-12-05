@@ -213,13 +213,4 @@ P, Q, R…を命題変数とします。このとき、
 
 ---
 
-## ライセンス
-
-MIT
-
----
-
-## 作者
-
-[@rintarosu](https://github.com/rintarosu)
 
