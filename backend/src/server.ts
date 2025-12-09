@@ -63,14 +63,13 @@ app.post('/api/apply-rule', (req, res) => {
     // Reactから送られてくるボディ (req.body) から必要なデータを取り出す
     const { state, rule, selectedStepIds, newFormulaAst } = req.body;
 
-    // TypeScriptの型にキャスト（ここでは簡易的に any を使っていますが、
-    // ProofStateの構造は厳密なので、applyRuleが厳しくチェックします）
+    // TypeScriptの型にキャスト
     const currentState = state as ProofState;
     const ruleName = rule as RuleName;
     const stepIds = selectedStepIds as number[];
 
     // 🌟 applyRule に新しい引数 newFormulaAst を追加して渡す
-const newState = applyRule(currentState, ruleName, stepIds, newFormulaAst as Formula); 
+    const newState = applyRule(currentState, ruleName, stepIds, newFormulaAst as Formula); 
 
     // 2. 成功した場合、新しい状態をReactに返す
     res.json({ success: true, newState: newState });

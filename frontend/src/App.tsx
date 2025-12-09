@@ -9,11 +9,11 @@ const INITIAL_PROOF_STATE = {
     // 初期ステップは、P->Q と P の2行のみ
     currentSteps: [
         // 1行目 (ID: 1): P → Q
-        { id: 1, formula: { type: 'BINARY', connective: 'IMPLIES', left: { type: 'ATOM', name: 'P' }, right: { type: 'ATOM', name: 'Q' } }, rule: 'ASSUME', justification: [], depth: 0 },
+        //{ id: 1, formula: { type: 'BINARY', connective: 'IMPLIES', left: { type: 'ATOM', name: 'P' }, right: { type: 'ATOM', name: 'Q' } }, rule: 'ASSUME', justification: [], depth: 0 },
         // 2行目 (ID: 2): P
-        { id: 2, formula: { type: 'ATOM', name: 'P' }, rule: 'ASSUME', justification: [], depth: 0 },
+        //{ id: 2, formula: { type: 'ATOM', name: 'P' }, rule: 'ASSUME', justification: [], depth: 0 },
     ],
-    nextId: 3
+    nextId: 1
 };
 
 // Helper function to format the AST into a readable string for the UI
