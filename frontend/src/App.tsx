@@ -252,7 +252,15 @@ function App() {
     // --- UI (JSX) ---
 
     return (
-        <div style={{ padding: '20px', fontFamily: 'Inter, sans-serif', maxWidth: '800px', margin: '0 auto', backgroundColor: '#f5f7fa', minHeight: '100vh' }}>
+        <div style={{ 
+            padding: '20px', 
+            fontFamily: 'Inter, sans-serif', 
+            maxWidth: '1000px', 
+            margin: '0 auto',
+            paddingBottom:'200px',
+            boxSizing:'border-box', 
+            backgroundColor: '#f5f7fa', 
+            minHeight: '100vh' }}>
             <h1 style={{ borderBottom: '2px solid #333', paddingBottom: '10px', color: '#1f2937' }}>論理証明ゲーム</h1>
             
             {/* 🌟🌟 目標設定フォーム 🌟🌟 */}
@@ -368,12 +376,24 @@ function App() {
                 {parsedAddQAst && <p style={{ color: 'green', fontSize: '0.85em', margin: '5px 0' }}>Q解析OK: {formatFormula(parsedAddQAst)}</p>}
             </div>
 
-
+           {/* --- 規則適用ボタン(固定フッター) --- */}
+            <div style={{
+                position: 'fixed',
+                bottom: 0,
+                left: '50%',
+                transform: 'translateX(-50%)',  // ← 追加
+                maxWidth: '800px',  // ← 追加
+                width: '100%',  
+                backgroundColor: '#ffffff',
+                borderTop: '2px solid #1890ff',
+                padding: '15px 20px',
+                boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)',
+                zIndex: 1000
+            }}>
+            <p style={{ fontSize: '0.9em', color: '#555', margin: '0 0 10px 0' }}>
+            選択中の行ID: {selectedSteps.join(', ') || 'なし'} </p>
             {/* --- 規則適用ボタン --- */}
-            <h3 style={{ marginTop: '30px', borderTop: '1px solid #ddd', paddingTop: '20px' }}>規則の適用</h3>
-            <p style={{ fontSize: '0.9em', color: '#555' }}>選択中の行ID: {selectedSteps.join(', ') || 'なし'}</p>
-
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
                 {/* MPボタン */}
                 <button onClick={handleApplyMP} disabled={selectedSteps.length !== 2 || isLoading || isGoalAchieved}
                     style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#52c41a', color: 'white', border: 'none', borderRadius: '6px', opacity: (selectedSteps.length !== 2 || isLoading || isGoalAchieved) ? 0.6 : 1 }}>
@@ -434,7 +454,8 @@ function App() {
                     {isLoading ? '処理中...' : 'DN (1行)'}
                 </button>
             </div>
-            
+    </div>
+
             {/* 💡 目標達成メッセージ */}
             {isGoalAchieved && (
                 <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f6ffed', border: '1px solid #b7eb8f', color: '#389e0d', borderRadius: '4px', fontWeight: 'bold' }}>
