@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Tooltip from './Tooltip';
+import Tooltip from './tooltip';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
