@@ -317,6 +317,85 @@ export function applyRule(
         
         // 規則が適用できない場合
         throw new Error('DS: Premises must be (A ∨ B) and (¬A or ¬B).');
+    }// --- 🌟 追加: 含意の導入 (II) ---
+    else if (rule === 'II') {
+        if (selectedStepIds.length !== 2) {
+            throw new Error(`II (Implication Introduction) requires exactly two steps: the Assumption and the Conclusion.`);
+        }
+
+        // 選択された2つのステップを取得
+        const stepA = state.currentSteps.find(s => s.id === selectedStepIds[0]);
+        const stepB = state.currentSteps.find(s => s.id === selectedStepIds[1]);
+
+        if (!stepA || !stepB) {
+            throw new Error("Selected steps not found.");
+        }
+
+        // どちらが「仮定(Assumption)」で、どちらが「結論(Conclusion)」か判定する
+        // ユーザーがクリックした順序に依存しないように、ロジックで判定するのが親切です。
+        
+        let assumptionStep: ProofStep | null = null;
+        let conclusionStep: ProofStep | null = null;
+
+        // 判定ロジック:
+        // 基本的に、仮定となる行は `rule: 'ASSUME'` であるはずです。
+        // もし両方とも ASSUME だったり、どちらも違ったりする場合は、
+        // 簡易的に「IDが小さい方（先に書かれた方）を仮定」とするか、
+        // あるいはフロントエンドから「どちらが仮定か」を明示的に送る必要があります。
+        
+        // ここでは「rule === 'ASSUME' である方を仮定とする」という安全策を取ります。
+        if (stepA.rule === 'ASSUME' && stepB.rule !== 'ASSUME') {
+            assumptionStep = stepA;
+            conclusionStep = stepB;
+        } else if (stepB.rule === 'ASSUME' && stepA.rule !== 'ASSUME') {
+            assumptionStep = stepB;
+            conclusionStep = stepA;
+        } else {
+            // 両方ASSUME、あるいは両方派生形の場合は、IDが若い方を仮定とみなす（一般的な証明の流れ）
+            if (stepA.id < stepB.id) {
+                assumptionStep = stepA;
+                conclusionStep = stepB;
+            } else {
+                assumptionStep = stepB;
+                conclusionStep = stepA;
+            }
+        }
+        
+        // 念の為チェック
+        if (!assumptionStep || !conclusionStep) throw new Error("Could not determine assumption and conclusion.");
+
+        // 新しい論理式 P -> Q を作成
+        const newFormula: Formula = {
+            type: 'BINARY',
+            connective: 'IMPLIES',
+            left: assumptionStep.formula,  // P
+            right: conclusionStep.formula  // Q
+        };
+
+        // 新しいステップを作成
+        const newStep: ProofStep = {
+            id: state.nextId,
+            formula: newFormula,
+            rule: 'II', // Implication Introduction
+            justification: [assumptionStep.id, conclusionStep.id],
+            depth: 0, // 解除されたのでdepthは0に戻る（あるいは前のdepth-1）
+            isDischarged: false 
+        };
+
+        // 🌟 重要な処理: 仮定として使った行を「Discharged」状態に更新する
+        // React/Redux的な不変性を保つため、mapで新しい配列を作ります
+        const updatedSteps = state.currentSteps.map(step => {
+            if (step.id === assumptionStep!.id) {
+                return { ...step, isDischarged: true }; // フラグを立てる
+            }
+            return step;
+        });
+
+        return {
+            ...state,
+            currentSteps: [...updatedSteps, newStep], // 更新されたリスト + 新しい行
+            nextId: state.nextId + 1,
+        };
     }
 
 

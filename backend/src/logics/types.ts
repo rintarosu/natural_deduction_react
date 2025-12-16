@@ -38,6 +38,7 @@ export type RuleName =
   'DI_LEFT'  | //選言の導入(左)
   'DI_RIGHT' | //選言の導入(右)
   'DS'       | //選言の除去(というか選言三段論法)
+  'II'       |
    'ASSUME'; 
 
 // 証明の一つのステップ（木構造のノードに対応）
@@ -47,6 +48,7 @@ export type ProofStep = {
   rule: RuleName; // 使用した規則
   justification: number[]; // 根拠となる行番号
   depth: number; // 条件付き証明のための深さ（今は0でOK）
+  isDischarged?: boolean;
 };
 
 

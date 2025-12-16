@@ -87,6 +87,15 @@ function App() {
     // 🌟 行がクリックされたときの処理 (選択/解除)
     const handleStepClick = (id: number) => {
         if (isLoading) return; 
+
+        // 対象のステップを探す
+        const targetStep = proofState.currentSteps.find((s: any) => s.id === id);
+        
+        // 既にdischarge(解除)されている仮定なら選択させない
+        if (targetStep && targetStep.isDischarged) {
+            return; 
+        }
+
         setSelectedSteps(prev => 
             prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
         );
@@ -246,6 +255,21 @@ function App() {
         setAddQInput(''); 
         setParsedAddQAst(null);
     };
+
+
+
+    // 🌟 含意導入 (II: Implication Introduction) ロジック
+    // ユーザーは「仮定 P」と「結論 Q」の2行を選択している必要があります。
+    const handleApplyII = () => {
+        if (selectedSteps.length !== 2) {
+            alert('含意導入(II)を行うには、解除する「仮定」と導かれた「結論」の2つを選択してください。');
+            return;
+        }
+        // バックエンドに送る
+        // バックエンド側で「どちらが仮定(ASSUME)で、どちらが結論か」また「依存関係は正しいか」を判定させるのが安全です。
+        callApplyRuleAPI('II', selectedSteps);
+    };
+
     
     // 目標達成チェック
     const isGoalAchieved = proofState.currentSteps.some((step: any) => 
@@ -315,19 +339,43 @@ function App() {
 
             {/* 🌟 証明ステップの表示 */}
             <h3>現在の証明 ({proofState.currentSteps.length} ステップ)</h3>
-            <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: '#ffffff', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)' }}>
-                {proofState.currentSteps.map((step: any) => (
-                    <div key={step.id} onClick={() => handleStepClick(step.id)}
-                        style={{ cursor: 'pointer', padding: '10px', borderRadius: '6px', marginBottom: '6px', transition: 'background-color 0.2s, box-shadow 0.2s',
-                            backgroundColor: selectedSteps.includes(step.id) ? '#e6f7ff' : 'white', border: selectedSteps.includes(step.id) ? '1px solid #91d5ff' : '1px solid #f0f0f0' }}>
-                        <strong style={{ minWidth: '30px', display: 'inline-block', color: '#1890ff' }}>{step.id}.</strong> 
-                        <span style={{ fontWeight: '600', fontSize: '1.1em' }}>{formatFormula(step.formula)}</span>
-                        <span style={{ float: 'right', color: '#8c8c8c', fontSize: '0.85em' }}>
-                            [規則: {step.rule} / 根拠: {step.justification.join(', ') || '-'}]
-                        </span>
-                    </div>
-                ))}
+            {/* 🌟 証明ステップの表示部分 (修正版) */}
+<div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', backgroundColor: '#ffffff', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)' }}>
+    {proofState.currentSteps.map((step: any) => {
+        // Dischargeされているかどうかの判定
+        const isDischarged = step.isDischarged;
+
+        return (
+            <div key={step.id} onClick={() => handleStepClick(step.id)}
+                style={{ 
+                    cursor: isDischarged ? 'not-allowed' : 'pointer', // カーソル変更
+                    padding: '10px', 
+                    borderRadius: '6px', 
+                    marginBottom: '6px', 
+                    transition: 'background-color 0.2s, box-shadow 0.2s',
+                    // Dischargeされている場合はグレーアウト、選択中は青っぽく、通常は白
+                    backgroundColor: isDischarged ? '#f5f5f5' : (selectedSteps.includes(step.id) ? '#e6f7ff' : 'white'), 
+                    border: selectedSteps.includes(step.id) ? '1px solid #91d5ff' : '1px solid #f0f0f0',
+                    // 文字色を薄くする
+                    color: isDischarged ? '#bfbfbf' : 'inherit'
+                }}>
+                <strong style={{ minWidth: '30px', display: 'inline-block', color: isDischarged ? '#bfbfbf' : '#1890ff' }}>
+                    {step.id}.
+                </strong> 
+                
+                {/* Dischargeされていたら [] で囲む */}
+                <span style={{ fontWeight: '600', fontSize: '1.1em', textDecoration: isDischarged ? 'line-through' : 'none' }}>
+                    {isDischarged ? `[${formatFormula(step.formula)}]` : formatFormula(step.formula)}
+                </span>
+
+                <span style={{ float: 'right', color: '#8c8c8c', fontSize: '0.85em' }}>
+                    [規則: {step.rule} / 根拠: {step.justification.join(', ') || '-'}]
+                    {isDischarged && <span style={{marginLeft: '5px', color: '#ff4d4f'}}>(Discharged)</span>}
+                </span>
             </div>
+        );
+    })}
+</div>
 
             {/* --- 新しい前提の入力 --- */}
             <h3 style={{ marginTop: '30px', borderTop: '1px solid #ddd', paddingTop: '20px' }}>新しい前提の入力</h3>
@@ -460,6 +508,24 @@ function App() {
                 <button onClick={handleApplyDN} disabled={selectedSteps.length !== 1 || isLoading || isGoalAchieved}
                     style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#ff4d4f', color: 'white', border: 'none', borderRadius: '6px', opacity: (selectedSteps.length !== 1 || isLoading || isGoalAchieved) ? 0.6 : 1 }}>
                     {isLoading ? '処理中...' : 'DN (1行)'}
+                </button>
+                </Tooltip>
+
+
+                {/* IIボタン (含意導入) */}
+                <Tooltip content="仮定φを解除してφ→Ψを導出 (φとΨを選択)">
+                <button onClick={handleApplyII} disabled={selectedSteps.length !== 2 || isLoading || isGoalAchieved}
+                    style={{ 
+                        padding: '12px 25px', 
+                        fontSize: '16px', 
+                        cursor: 'pointer', 
+                        backgroundColor: '#722ed1', // 紫色系
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '6px', 
+                        opacity: (selectedSteps.length !== 2 || isLoading || isGoalAchieved) ? 0.6 : 1 
+                    }}>
+                    {isLoading ? '処理中...' : '含意導入 (→I) - 2行'}
                 </button>
                 </Tooltip>
             </div>
