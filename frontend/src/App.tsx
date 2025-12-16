@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import Tooltip from './Tooltip';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+
 
 // 🌟 初期証明状態の定義 (リセット用)
 const INITIAL_PROOF_STATE = {
@@ -249,6 +252,8 @@ function App() {
         proofState.goal && JSON.stringify(step.formula) === JSON.stringify(proofState.goal)
     );
 
+
+
     // --- UI (JSX) ---
 
     return (
@@ -395,64 +400,68 @@ function App() {
             {/* --- 規則適用ボタン --- */}
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
                 {/* MPボタン */}
+                <Tooltip content="φとφ→ΨからΨを導出">
                 <button onClick={handleApplyMP} disabled={selectedSteps.length !== 2 || isLoading || isGoalAchieved}
                     style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#52c41a', color: 'white', border: 'none', borderRadius: '6px', opacity: (selectedSteps.length !== 2 || isLoading || isGoalAchieved) ? 0.6 : 1 }}>
                     {isLoading ? '処理中...' : 'MP (2行)'}
                 </button>
-                
+                </Tooltip>
+
                 {/* CIボタン */}
+                <Tooltip content="φとΨからΦ∧Ψを導出">
                 <button onClick={handleApplyCI} disabled={selectedSteps.length !== 2 || isLoading || isGoalAchieved}
                     style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#13c2c2', color: 'white', border: 'none', borderRadius: '6px', opacity: (selectedSteps.length !== 2 || isLoading || isGoalAchieved) ? 0.6 : 1 }}>
                     {isLoading ? '処理中...' : '連言導入 (CI) - 2行'}
                 </button>
+                </Tooltip>
 
                 {/* CEボタン (左) */}
+                <Tooltip content="Φ∧ΨからΦを導出">
                 <button onClick={() => handleApplyCE('LEFT')} disabled={selectedSteps.length !== 1 || isLoading || isGoalAchieved}
                     style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#fa8c16', color: 'white', border: 'none', borderRadius: '6px', opacity: (selectedSteps.length !== 1 || isLoading || isGoalAchieved) ? 0.6 : 1 }}>
                     {isLoading ? '処理中...' : 'CE - 左 (1行)'}
                 </button>
+                </Tooltip>
 
                 {/* CEボタン (右) */}
+                <Tooltip content="Φ∧ΨからΨを導出">
                 <button onClick={() => handleApplyCE('RIGHT')} disabled={selectedSteps.length !== 1 || isLoading || isGoalAchieved}
                     style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#fa8c16', color: 'white', border: 'none', borderRadius: '6px', opacity: (selectedSteps.length !== 1 || isLoading || isGoalAchieved) ? 0.6 : 1 }}>
                     {isLoading ? '処理中...' : 'CE - 右 (1行)'}
                 </button>
+                </Tooltip>
 
                 {/* DIボタン (左) */}
+                <Tooltip content="ΦからΦ∨Ψを導出">
                 <button onClick={() => handleApplyDI('LEFT')} disabled={selectedSteps.length !== 1 || isLoading || isGoalAchieved || !parsedAddQAst}
                     style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#fadb14', color: '#333', border: 'none', borderRadius: '6px', opacity: (selectedSteps.length !== 1 || isLoading || isGoalAchieved || !parsedAddQAst) ? 0.6 : 1 }}>
                     {isLoading ? '処理中...' : 'DI - 左 (1行+Q)'}
                 </button>
+                </Tooltip>
                 
                 {/* DIボタン (右) */}
+                <Tooltip content="ΨからΦ∨Ψを導出">
                 <button onClick={() => handleApplyDI('RIGHT')} disabled={selectedSteps.length !== 1 || isLoading || isGoalAchieved || !parsedAddQAst}
                     style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#fadb14', color: '#333', border: 'none', borderRadius: '6px', opacity: (selectedSteps.length !== 1 || isLoading || isGoalAchieved || !parsedAddQAst) ? 0.6 : 1 }}>
                     {isLoading ? '処理中...' : 'DI - 右 (1行+Q)'}
                 </button>
+                </Tooltip>
 
                 {/* 🌟 DSボタンの追加 */}
-                <button 
-                onClick={handleApplyDS} 
-                disabled={selectedSteps.length !== 2 || isLoading || isGoalAchieved}
-                style={{ 
-            padding: '12px 25px', 
-            fontSize: '16px', 
-            cursor: 'pointer', 
-            backgroundColor: '#00b0ff', // 青
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '6px',
-            opacity: (selectedSteps.length !== 2 || isLoading || isGoalAchieved) ? 0.6 : 1
-        }}
-    >
-        {isLoading ? '処理中...' : '選言除去 (DS) - 2行'}
-    </button>
-                
+                <Tooltip content="¬Φ∨ΨとΦからΨを導出">
+                <button onClick={handleApplyDS} disabled={selectedSteps.length !== 2 || isLoading || isGoalAchieved}
+                    style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#00b0ff', color: 'white', border: 'none', borderRadius: '6px',opacity: (selectedSteps.length !== 2 || isLoading || isGoalAchieved) ? 0.6 : 1}}>
+                    {isLoading ? '処理中...' : '選言除去 (DS) - 2行'}
+                </button>
+                </Tooltip>
+
                 {/* DNボタン */}
+                <Tooltip content="¬¬ΦからΦを導出">
                 <button onClick={handleApplyDN} disabled={selectedSteps.length !== 1 || isLoading || isGoalAchieved}
                     style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#ff4d4f', color: 'white', border: 'none', borderRadius: '6px', opacity: (selectedSteps.length !== 1 || isLoading || isGoalAchieved) ? 0.6 : 1 }}>
                     {isLoading ? '処理中...' : 'DN (1行)'}
                 </button>
+                </Tooltip>
             </div>
     </div>
 
