@@ -24,8 +24,6 @@ export function applyRule(
   selectedStepIds: number[],
   newFormulaAst?: Formula
 ): ProofState {
-
-    // --- 規則: モーダスポネンス (MP) の適用 ---
     
     // --- 規則: モーダスポネンス (MP) の適用 ---
     if (rule === 'MP') {
@@ -248,14 +246,8 @@ export function applyRule(
             nextId: state.nextId + 1,
         };
     } 
-        
-    // --- 規則: 選言三段論法 (DS) の適用 ---
-   // backend/src/logics/engine.ts (DS規則の部分)
+    
 
-    // backend/src/logics/engine.ts (DS規則の部分)
-
-    // --- 規則: 選言三段論法 (DS) の適用 ---
-    // backend/src/logics/engine.ts (DS規則の部分)
 
     // --- 規則: 選言三段論法 (DS) の適用 ---
     else if (rule === 'DS') {
@@ -334,6 +326,5 @@ export function applyRule(
 
 
 
-    // 今はMPしか実装していないので、他の規則はエラー
     throw new Error(`Rule ${rule} is not yet implemented.`);
 }
