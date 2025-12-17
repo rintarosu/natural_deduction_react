@@ -394,6 +394,117 @@ export function applyRule(
             currentSteps: [...updatedSteps, newStep], // 更新されたリスト + 新しい行
             nextId: state.nextId + 1,
         };
+    }else if (rule === 'NI') {
+        if (selectedStepIds.length !== 2) {
+            throw new Error(`RAA requires exactly two steps: the Assumption and the Contradiction.`);
+        }
+        // 選択された2つのステップを取得
+        const stepA = state.currentSteps.find(s => s.id === selectedStepIds[0]);
+        const stepB = state.currentSteps.find(s => s.id === selectedStepIds[1]);
+
+        if (!stepA || !stepB) {
+            throw new Error("Selected steps not found.");
+        }
+
+
+        // 🛑 🌟 追加: ガード節
+        // 両方とも「ASSUME (仮定)」じゃなかったら、Dischargeできるものがないのでエラーにする
+        if (stepA.rule !== 'ASSUME' && stepB.rule !== 'ASSUME') {
+             throw new Error("否定導入(NI)を適用するには、解除(Discharge)する「仮定(ASSUME)」が含まれている必要があります。");
+        }
+
+        // どちらが「仮定(Assumption)」で、どちらが「結論(Conclusion)」か判定する
+        // ユーザーがクリックした順序に依存しないように、ロジックで判定するのが親切です。
+        
+        let assumptionStep: ProofStep | null = null;
+        let contradictionStep: ProofStep | null = null;
+
+        // 判定ロジック:
+                
+        // ここでは「rule === 'ASSUME' である方を仮定とする」という安全策を取ります。
+        if (stepA.rule === 'ASSUME' && stepB.rule !== 'ASSUME') {
+            assumptionStep = stepA;
+            contradictionStep = stepB;
+        } else if (stepB.rule === 'ASSUME' && stepA.rule !== 'ASSUME') {
+            assumptionStep = stepB;
+            contradictionStep = stepA;
+        } else {
+            // 両方ASSUMEのときはIDが若い方を仮定とみなす（一般的な証明の流れ）
+           
+            if (stepA.id < stepB.id) {
+                assumptionStep = stepA;
+                contradictionStep = stepB;
+            } else {
+                assumptionStep = stepB;
+                contradictionStep = stepA;
+            }
+        
+        }
+        
+       
+       
+
+        // 🛑 矛盾の形式チェック (Q /\ ¬Q または ¬Q /\ Q)
+        const cFormula = contradictionStep.formula;
+
+        // 1. まず「AND (連言)」であることを確認
+        if (cFormula.type !== 'BINARY' || cFormula.connective !== 'AND') {
+             throw new Error("矛盾として選択された行は、連言 (Q ∧ ¬Q) の形式である必要があります。");
+        }
+
+        const left = cFormula.left;
+        const right = cFormula.right;
+        let isValidContradiction = false;
+
+        // 2. パターンA: 左が Q で、右が ¬Q の場合 (Q ∧ ¬Q)
+        // 右側が NOT型 かつ、その中身が 左側と一致するか？
+        if (right.type === 'NOT' && isFormulaEqual(left, right.formula)) {
+            isValidContradiction = true;
+        }
+        
+        // 3. パターンB: 左が ¬Q で、右が Q の場合 (¬Q ∧ Q)
+        // 左側が NOT型 かつ、その中身が 右側と一致するか？
+        else if (left.type === 'NOT' && isFormulaEqual(right, left.formula)) {
+            isValidContradiction = true;
+        }
+
+        if (!isValidContradiction) {
+            throw new Error("矛盾の形式になっていません。(A ∧ ¬A) または (¬A ∧ A) の形である必要があります。");
+        }
+
+        // 念の為チェック
+        if (!assumptionStep || !contradictionStep) throw new Error("Could not determine assumption and conclusion.");
+
+        // 新しい論理式 P -> Q を作成
+        const newFormula: Formula = {
+            type: 'NOT',
+            formula: assumptionStep.formula
+        };
+
+        // 新しいステップを作成
+        const newStep: ProofStep = {
+            id: state.nextId,
+            formula: newFormula,
+            rule: 'NI', // Implication Introduction
+            justification: [assumptionStep.id, contradictionStep.id],
+            isDischarged: false 
+        };
+
+        // 🌟 重要な処理: 仮定として使った行を「Discharged」状態に更新する
+        // React/Redux的な不変性を保つため、mapで新しい配列を作ります
+        const updatedSteps = state.currentSteps.map(step => {
+            if (step.id === assumptionStep!.id) {
+                return { ...step, isDischarged: true }; // フラグを立てる
+            }
+            return step;
+        });
+
+        return {
+            ...state,
+            currentSteps: [...updatedSteps, newStep], // 更新されたリスト + 新しい行
+            nextId: state.nextId + 1,
+        };
+
     }
 
 

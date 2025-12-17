@@ -251,6 +251,8 @@ function App() {
     const handleApplyII = () => {if (selectedSteps.length !== 2) { return;} callApplyRuleAPI('II', selectedSteps);};
 
     
+    const handleApplyNI = () => {if (selectedSteps.length !== 2) { return;} callApplyRuleAPI('NI', selectedSteps);};
+
     // 目標達成チェック
     const isGoalAchieved = proofState.currentSteps.some((step: any) => 
         proofState.goal && JSON.stringify(step.formula) === JSON.stringify(proofState.goal)
@@ -497,13 +499,29 @@ function App() {
                         padding: '12px 25px', 
                         fontSize: '16px', 
                         cursor: 'pointer', 
-                        backgroundColor: '#722ed1', // 紫色系
+                        backgroundColor: '#722ed1', 
                         color: 'white', 
                         border: 'none', 
                         borderRadius: '6px', 
                         opacity: (selectedSteps.length !== 2 || isLoading || isGoalAchieved) ? 0.6 : 1 
                     }}>
                     {isLoading ? '処理中...' : '含意導入 (→I) - 2行'}
+                </button>
+                </Tooltip>
+                {/* NIボタン (含意導入) */}
+                <Tooltip content="仮定φで矛盾するなら¬φを導出 (φと矛盾する行を選択)">
+                <button onClick={handleApplyNI} disabled={selectedSteps.length !== 2 || isLoading || isGoalAchieved}
+                    style={{ 
+                        padding: '12px 25px', 
+                        fontSize: '16px', 
+                        cursor: 'pointer', 
+                        backgroundColor: '#8e0a22ff', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '6px', 
+                        opacity: (selectedSteps.length !== 2 || isLoading || isGoalAchieved) ? 0.6 : 1 
+                    }}>
+                    {isLoading ? '処理中...' : '否定導入 (¬I) - 2行'}
                 </button>
                 </Tooltip>
             </div>

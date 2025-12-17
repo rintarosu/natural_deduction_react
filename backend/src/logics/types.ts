@@ -30,7 +30,7 @@ export type Formula =
   | { type: 'BINARY'; connective: Connective; left: Formula; right: Formula }; // 二項結合子 (例: P -> Q)
 
 export type RuleName = 
-   'MP' |
+   'MP' |  //含意の除去
    'CI' | // 連言の導入 (Conjunction Introduction)
   'CE_LEFT' | // 連言の除去 (左)
   'CE_RIGHT' | // 連言の除去 (右) 
@@ -38,8 +38,9 @@ export type RuleName =
   'DI_LEFT'  | //選言の導入(左)
   'DI_RIGHT' | //選言の導入(右)
   'DS'       | //選言の除去(というか選言三段論法)
-  'II'       |
-   'ASSUME'; 
+  'II'       | //含意の導入
+  'NI'      | //否定の導入
+  'ASSUME'; 
 
 // 証明の一つのステップ（木構造のノードに対応）
 export type ProofStep = {
