@@ -28,7 +28,7 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
             throw new Error("One or both selected steps were not found.");
         }
         const [p1, p2] = premises;
-        // 🌟 処理 1: p1が含意 (A -> B) の場合
+        //処理 1: p1が含意 (A -> B) の場合
         if (p1.formula.type === 'BINARY' && p1.formula.connective === 'IMPLIES') {
             const implication = p1.formula; // TypeScriptはここで implication が BINARY であると推論する
             const antecedent = p2.formula;
@@ -40,7 +40,6 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
                     formula: newFormula,
                     rule: rule,
                     justification: selectedStepIds,
-                    depth: Math.max(p1.depth, p2.depth),
                 };
                 return {
                     ...state,
@@ -49,7 +48,7 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
                 };
             }
         }
-        // 🌟 処理 2: p2が含意 (A -> B) の場合
+        //処理 2: p2が含意 (A -> B) の場合
         if (p2.formula.type === 'BINARY' && p2.formula.connective === 'IMPLIES') {
             const implication = p2.formula;
             const antecedent = p1.formula;
@@ -61,7 +60,6 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
                     formula: newFormula,
                     rule: rule,
                     justification: selectedStepIds,
-                    depth: Math.max(p1.depth, p2.depth),
                 };
                 return {
                     ...state,
@@ -94,7 +92,6 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
             formula: newFormula,
             rule: rule,
             justification: selectedStepIds,
-            depth: Math.max(premiseA.depth, premiseB.depth),
         };
         return {
             ...state,
@@ -121,7 +118,6 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
                 formula: newFormula,
                 rule: rule,
                 justification: selectedStepIds,
-                depth: premise.depth,
             };
             return {
                 ...state,
@@ -149,7 +145,6 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
                 formula: newFormula,
                 rule: rule,
                 justification: selectedStepIds,
-                depth: premise.depth,
             };
             return {
                 ...state,
@@ -188,7 +183,6 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
             formula: newFormula,
             rule: rule, // DI_LEFT または DI_RIGHT
             justification: selectedStepIds,
-            depth: premise.depth,
         };
         return {
             ...state,
@@ -244,7 +238,6 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
                     formula: conclusion,
                     rule: rule,
                     justification: selectedStepIds,
-                    depth: Math.max(p1.depth, p2.depth),
                 };
                 return {
                     ...state,
@@ -311,7 +304,6 @@ export function applyRule(state, rule, selectedStepIds, newFormulaAst) {
             formula: newFormula,
             rule: 'II', // Implication Introduction
             justification: [assumptionStep.id, conclusionStep.id],
-            depth: 0, // 解除されたのでdepthは0に戻る（あるいは前のdepth-1）
             isDischarged: false
         };
         // 🌟 重要な処理: 仮定として使った行を「Discharged」状態に更新する

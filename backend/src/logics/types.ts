@@ -47,7 +47,6 @@ export type ProofStep = {
   formula: Formula; // AST
   rule: RuleName; // 使用した規則
   justification: number[]; // 根拠となる行番号
-  depth: number; // 条件付き証明のための深さ（今は0でOK）
   isDischarged?: boolean;
 };
 

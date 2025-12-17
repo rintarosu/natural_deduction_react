@@ -41,7 +41,7 @@ export function applyRule(
 
         const [p1, p2] = premises;
 
-        // 🌟 処理 1: p1が含意 (A -> B) の場合
+        //処理 1: p1が含意 (A -> B) の場合
         if (p1.formula.type === 'BINARY' && p1.formula.connective === 'IMPLIES') {
             const implication = p1.formula; // TypeScriptはここで implication が BINARY であると推論する
             const antecedent = p2.formula; 
@@ -55,7 +55,6 @@ export function applyRule(
                     formula: newFormula,
                     rule: rule,
                     justification: selectedStepIds,
-                    depth: Math.max(p1.depth, p2.depth), 
                 };
 
                 return {
@@ -66,7 +65,7 @@ export function applyRule(
             }
         } 
         
-        // 🌟 処理 2: p2が含意 (A -> B) の場合
+        //処理 2: p2が含意 (A -> B) の場合
         if (p2.formula.type === 'BINARY' && p2.formula.connective === 'IMPLIES') {
             const implication = p2.formula;
             const antecedent = p1.formula;
@@ -80,7 +79,7 @@ export function applyRule(
                     formula: newFormula,
                     rule: rule,
                     justification: selectedStepIds,
-                    depth: Math.max(p1.depth, p2.depth), 
+                    
                 };
 
                 return {
@@ -120,7 +119,6 @@ export function applyRule(
             formula: newFormula,
             rule: rule,
             justification: selectedStepIds,
-            depth: Math.max(premiseA.depth, premiseB.depth),
         };
         
         return {
@@ -154,7 +152,6 @@ export function applyRule(
                 formula: newFormula,
                 rule: rule,
                 justification: selectedStepIds,
-                depth: premise.depth,
             };
             
             return {
@@ -190,7 +187,6 @@ export function applyRule(
                 formula: newFormula,
                 rule: rule,
                 justification: selectedStepIds,
-                depth: premise.depth,
             };
             
             return {
@@ -237,7 +233,6 @@ export function applyRule(
             formula: newFormula,
             rule: rule, // DI_LEFT または DI_RIGHT
             justification: selectedStepIds,
-            depth: premise.depth,
         };
         
         return {
@@ -304,7 +299,6 @@ export function applyRule(
                     formula: conclusion,
                     rule: rule,
                     justification: selectedStepIds,
-                    depth: Math.max(p1.depth, p2.depth),
                 };
                 
                 return {
@@ -331,6 +325,13 @@ export function applyRule(
             throw new Error("Selected steps not found.");
         }
 
+
+        // 🛑 🌟 追加: ガード節
+        // 両方とも「ASSUME (仮定)」じゃなかったら、Dischargeできるものがないのでエラーにする
+        if (stepA.rule !== 'ASSUME' && stepB.rule !== 'ASSUME') {
+             throw new Error("含意導入(II)を適用するには、解除(Discharge)する「仮定(ASSUME)」が含まれている必要があります。");
+        }
+
         // どちらが「仮定(Assumption)」で、どちらが「結論(Conclusion)」か判定する
         // ユーザーがクリックした順序に依存しないように、ロジックで判定するのが親切です。
         
@@ -338,11 +339,7 @@ export function applyRule(
         let conclusionStep: ProofStep | null = null;
 
         // 判定ロジック:
-        // 基本的に、仮定となる行は `rule: 'ASSUME'` であるはずです。
-        // もし両方とも ASSUME だったり、どちらも違ったりする場合は、
-        // 簡易的に「IDが小さい方（先に書かれた方）を仮定」とするか、
-        // あるいはフロントエンドから「どちらが仮定か」を明示的に送る必要があります。
-        
+                
         // ここでは「rule === 'ASSUME' である方を仮定とする」という安全策を取ります。
         if (stepA.rule === 'ASSUME' && stepB.rule !== 'ASSUME') {
             assumptionStep = stepA;
@@ -351,7 +348,8 @@ export function applyRule(
             assumptionStep = stepB;
             conclusionStep = stepA;
         } else {
-            // 両方ASSUME、あるいは両方派生形の場合は、IDが若い方を仮定とみなす（一般的な証明の流れ）
+            // 両方ASSUMEのときはIDが若い方を仮定とみなす（一般的な証明の流れ）
+           
             if (stepA.id < stepB.id) {
                 assumptionStep = stepA;
                 conclusionStep = stepB;
@@ -359,6 +357,7 @@ export function applyRule(
                 assumptionStep = stepB;
                 conclusionStep = stepA;
             }
+        
         }
         
         // 念の為チェック
@@ -378,7 +377,6 @@ export function applyRule(
             formula: newFormula,
             rule: 'II', // Implication Introduction
             justification: [assumptionStep.id, conclusionStep.id],
-            depth: 0, // 解除されたのでdepthは0に戻る（あるいは前のdepth-1）
             isDischarged: false 
         };
 
